@@ -1,0 +1,44 @@
+#!/bin/bash
+
+### This will be the researcher who supported your use of the HPC.
+#PBS -W group_list=[your researcher here]
+
+### Researchers can buy in for priority queueing. However, the amount of time 
+### they can use for this is limited.  Everyone has access to unlimited
+### windfall.  However, any priority jobs will go first.  The queues on Ocelote
+### are windfall, standard, qualified, high, ssp_standard
+#PBS -q windfall
+
+### Most Nodes have 28 cores on Ocelote.  This configuration shows a request
+### for 1 node with 1 core.  If you have a job that needs more than 28 cores,
+### you can increase the number of nodes but be careful because that MULTIPLIES
+### the number of requested cores.  Requesting 2 nodes with 15 cores will give
+### you 30 total cores, for example.  mem is the total amount of memory (per
+### node, 168gb max) available for the job.  On Ocelote, this is the total
+### number of cores multiplied by 6gb.  pcmem is the amount of memory per core.
+### This is the same as the limit of 6 per core.  The more efficiently you
+### request your resources, the less time your job will spend in the queue and
+### the more resources will be available for others to use.  If you're not sure
+### how much you should request, please contact the consult team.
+
+#PBS -l select=1:ncpus=1:mem=6gb:pcmem=6gb
+
+### This is the amount of time you think your job will take to run.
+### Not sure how long it will take?  Request the max of 10 days.
+### (240:00:00)                  #PBS -l walltime=240:00:00
+### This request shows 5 minutes #PBS -l walltime=00:05:00
+#PBS -l walltime=[your walltime here]
+
+### An array of 5 jobs.  Each job in the array will have a request for
+### resources as shown above.
+#PBS -J 1-5
+
+### This will show which node your job is running on.
+echo 'This job is running on:'
+hostname
+
+### use PBS script to display index
+echo job array index $PBS_ARRAY_INDEX
+
+### If you have any trouble or questions, please contact:
+### hpc-consult@list.arizona.edu

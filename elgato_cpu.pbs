@@ -1,0 +1,37 @@
+#!/bin/bash
+
+### This will be the researcher who supported your use of the HPC.
+#PBS -W group_list=
+
+### Researchers can buy in for priority queueing. However, the amount of time 
+### they can use for this is limited.  Everyone has access to unlimited
+### windfall.  However, any priority jobs will go first.  The queues on El Gato
+### are windfall, standard, high_pri
+#PBS -q [your queue here]
+
+### Nodes have 16 cores on El Gato.  This configuration shows a request
+### for 1 node with 4 cores.  If you have a job that needs more than 16 cores,
+### you can increase the number of nodes but be careful because that MULTIPLIES
+### the number of requested cores.  Requesting 2 nodes with 16 cores will give
+### you 32 total cores, for example.  mem is the total amount of memory available
+### for the job.  (per node with a max of 62)  On El Gato, this is the total
+### number of cores multiplied by 4gb.  pcmem is the amount of memory per core.
+### This is the same as the limit of 4 per core.  The more efficiently you
+### request your resources, the less time your job will spend in the queue and
+### the more resources will be available for others to use.  If you're not sure
+### how much you should request please contact the consult team.
+#PBS -l select=1:ncpus=4:mem=16gb:pcmem=4gb
+
+### This is the amount of time you think your job will take to run.
+### Not sure how long it will take?  Request the max of 10 days.
+### (240:00:00)                  #PBS -l walltime=240:00:00
+### This request shows 5 minutes #PBS -l walltime=00:05:00
+#PBS -l walltime=[your time here]
+
+### This will show which node your job is running on.
+echo 'This script is running on:'
+hostname
+
+### If you have any trouble or questions, please contact:
+### hpc-consult@list.arizona.edu
+

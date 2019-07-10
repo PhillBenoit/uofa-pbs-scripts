@@ -1,0 +1,72 @@
+#!/bin/bash
+
+#PBS -W group_list=
+#PBS -q 
+#PBS -l select=1:ncpus=28:mem=250gb:pcmem=8gb:np100s=1
+#PBS -l walltime=00:20:00
+
+set -e; set -o pipefail
+
+### Create demp folder
+tmppath=/tmp/$USER
+mkdir $tmppath
+trap "echo script unexpectedly halted; date; rm -rf ${tmppath}" SIGTERM
+
+# move image to local storage
+cp /unsupported/singularity/nvidia/nvidia-namd_2.13b2-multinode.simg $tmppath
+
+# Load required modules
+module load singularity
+module load curl
+
+### helpful message
+echo if this fails, please clean up:
+cat $PBS_NODEFILE | sort -u
+
+# Calculate task/process counts
+PBS_TASK_COUNT=$(grep -c . ${PBS_NODEFILE})
+PBS_NODE_COUNT=$(uniq ${PBS_NODEFILE} | wc -l)
+PBS_TASKS_PER_NODE=$(( PBS_TASK_COUNT / PBS_NODE_COUNT ))
+
+# Reserving one CPU core for comm thread
+NAMD_TASKS_PER_NODE=$(( PBS_TASKS_PER_NODE - 1 ))
+NAMD_TASKS_TOTAL=$(( PBS_NODE_COUNT * NAMD_TASKS_PER_NODE ))
+
+# Change to PBS submission directory
+cd ${PBS_O_WORKDIR}
+
+# Generate charmrun hostfile
+NODELIST=$(pwd)/.nodelist.${PBS_JOBID}
+for host in $(uniq ${PBS_NODEFILE}); do
+  echo "host ${host} ++cpus ${PBS_TASKS_PER_NODE}" >> ${NODELIST}
+done
+
+# Singularity command which will launch charmrun and namd2
+SIMG="/tmp/${USER}/nvidia-namd_2.13b2-multinode.simg"
+SINGULARITY="$(which singularity) exec --nv -B $(pwd):/host_pwd ${SIMG}"
+
+# charmrun command, which will use passwordless SSH to initialize itself
+SSH="ssh -o PubkeyAcceptedKeyTypes=+ssh-dss -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR"
+CHARMRUN="charmrun ++remote-shell \"${SSH}\" ++nodelist ${NODELIST} ++scalable-start ++p ${NAMD_TASKS_TOTAL} ++ppn ${NAMD_TASKS_PER_NODE}"
+
+program=namd2
+logfile=$tmppath/namd.txt
+delay=15
+
+~/gpu_monitor.sh $program $logfile $delay &
+
+# namd2 command
+INPUT="/host_pwd/apoa1/apoa1.namd"
+NAMD2="namd2 +setcpuaffinity +idlepoll ${INPUT}"
+
+echo "Running APOA1 example..."
+eval "${SINGULARITY} ${CHARMRUN} ${SINGULARITY} ${NAMD2}"
+
+killall -9 gpu_monitor.sh
+
+echo move
+mv $logfile ~/logs/
+
+echo clean
+### Clean up temp folder
+rm -r $tmppath

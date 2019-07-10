@@ -1,0 +1,36 @@
+#!/bin/bash
+
+### This will be the researcher who supported your use of the HPC.
+#PBS -W group_list=[your researcher here]
+
+### Researchers can buy in for priority queueing. However, the amount of time 
+### they can use for this is limited.  Everyone has access to unlimited
+### windfall.  However, any priority jobs will go first.  The queues on El Gato
+### are windfall, standard, high_pri
+#PBS -q [your queue here]
+
+### GPU nodes have 16 cores of standard processors.  When requesting a GPU node,
+### it is important to request the whole node.  The request below shows a
+### request for a single GPU.  On El Gato, there are more single GPU nodes than
+### double gpu nodes.  Requesting single GPU nodes will shorten your queue wait
+### time.  With GPU requests, it's important to also configure your software to
+### recognize the GPU resources.  This will also inform how many you request.
+### If you need help with configuration or deciding what resources to request,
+### please reach out to the HPC consult team.
+#PBS -l select=1:ncpus=16:mem=250gb:pcmem=16gb:ngpus=1
+
+### This is the amount of time you think your job will take to run.
+### Not sure how long it will take?  Request the max of 10 days.
+### (240:00:00)                  #PBS -l walltime=240:00:00
+### This request shows 5 minutes #PBS -l walltime=00:05:00
+#PBS -l walltime=[your time here]
+
+### This will show which node your job is running on.
+echo 'This script is running on:'
+hostname
+
+### GPU test program
+nvidia-smi
+
+### If you have any trouble or questions, please contact:
+### hpc-consult@list.arizona.edu

@@ -1,0 +1,47 @@
+#!/bin/bash
+
+### This will be the researcher who supported your use of the HPC.
+#PBS -W group_list=[your researcher here]
+
+### Researchers can buy in for priority queueing. However, the amount of time 
+### they can use for this is limited.  Everyone has access to unlimited
+### windfall.  However, any priority jobs will go first.  The queues on Ocelote
+### are windfall, standard, qualified, high, ssp_standard
+#PBS -q windfall
+
+### this is just 1 node, 1 CPU, 6gb memory, per job
+#PBS -l select=1:ncpus=1:mem=6gb:pcmem=6gb
+
+### This is the amount of time you think your job will take to run.
+### Not sure how long it will take?  Request the max of 10 days.
+### (240:00:00)                  #PBS -l walltime=240:00:00
+### This request shows 5 minutes #PBS -l walltime=00:05:00
+#PBS -l walltime=00:05:00
+
+### an array of 5 jobs
+#PBS -J 1-5
+
+### Load MatLab module
+module load matlab
+
+### This will show which node your job is running on.
+echo 'This script is running on:'
+hostname
+
+### use PBS script to display index
+echo job array index $PBS_ARRAY_INDEX
+
+### Visual Separator
+echo ------------------------------------
+
+### explicitly set the working directory
+cd /home/u8/pbenoit/array
+
+### command to invoke matlab
+matlab -nodesktop -nodisplay -nosplash -r "hello $PBS_ARRAY_INDEX"
+
+### Visual Separator
+echo ------------------------------------
+
+### If you have any trouble or questions, please contact:
+### hpc-consult@list.arizona.edu

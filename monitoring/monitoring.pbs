@@ -1,0 +1,47 @@
+#!/bin/bash
+
+### PBS request
+#PBS -W group_list=
+#PBS -q 
+#PBS -l select=1:ncpus=2:mem=12gb:pcmem=6gb
+#PBS -l walltime=01:00:00
+
+### Create temp folder for logs
+tmppath=/tmp/$USER
+mkdir $tmppath
+trap "echo script unexpectedly halted; date; rm -rf ${tmppath}" SIGTERM
+
+### helpful message
+echo if this fails, please clean up:
+cat $PBS_NODEFILE | sort -u
+
+### Name for log file
+logfile=$tmppath/java.txt
+
+### Program to monitor
+program=java
+
+### How often to log status
+delay=15
+
+### Monitoring command
+~/cpu_monitor.sh $program $logfile $delay &
+
+### visual separator
+echo -----------------------------------------------
+
+### Program being monitored
+cd ~/monitor_test/
+java -Xmx6g Primes
+
+### visual separator
+echo -----------------------------------------------
+
+### Kill monitoring
+killall -9 cpu_monitor.sh
+
+### Move output
+mv $logfile ~/logs/
+
+### Clean up temp folder
+rm -r $tmppath
