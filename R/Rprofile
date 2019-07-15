@@ -1,0 +1,4 @@
+#uses host_cluster.sh to append the system name to
+#the directory structure for user libraries
+host_cluster_path <- paste("~/R/library/",system("~/host_cluster.sh",intern = TRUE),"/",sep="")
+.libPaths( c( host_cluster_path, .libPaths() ) )
