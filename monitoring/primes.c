@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 
-//define the structure for the linked list
+//define the structure for a linked list node
 typedef struct node {
 	long data;
 	struct node* next;
@@ -23,12 +23,24 @@ long counter = 2;
 
 //adds a link to the linked list
 void addNode(long n) {
+	
+	//allocate space for the node
 	struct node* newNode = (struct node*)malloc(sizeof(struct node));
+	
+	//if malloc fails to allocate, print a helpful message
 	if (newNode == NULL) printf("Stopped at %d. size of node: %d\n", counter,
 		sizeof(struct node));
+		
+	//set new prime
 	newNode->data = n;
+	
+	//point to new prime
 	tail->next = newNode;
+	
+	//set new prime as the tail of the list
 	tail = newNode;
+	
+	//increment counter
 	counter++;
 }
 
@@ -41,7 +53,7 @@ int main() {
 		return -1;
 	}
 
-	//define step for for{} loop
+	//define step for monitoring loop
 	long step = LAST_NUMBER / SLICE;
 
 	//add 3 as first node of the list
