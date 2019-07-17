@@ -1,8 +1,18 @@
 import java.text.NumberFormat;
 import java.util.LinkedList;
 
+/**
+ * Use link list to find all prime numbers from two to a billion.
+ * Used to generate trafic to test monitoring of HPC resources.
+ * 
+ * @author Phillip Benoit
+ *
+ */
 public class Primes {
 
+	/**
+	 * entry point
+	 */
 	public static void main(String[] args) {
 
 		//used value because known number of primes
@@ -30,7 +40,8 @@ public class Primes {
 
 		//start with 2 as a known prime number
 		primes.add(2);
-
+		
+		//number being tested for "primeness"
 		//start x at the next number
 		int x = 3;
 
